@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:despesas_pessoais/components/chart.dart';
 import 'package:despesas_pessoais/components/transaction_form.dart';
 import 'package:despesas_pessoais/components/transaction_list.dart';
 import 'package:despesas_pessoais/models/transactions.dart';
@@ -12,7 +13,13 @@ class ExpensesApp extends StatelessWidget {
   const ExpensesApp({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(home: MyHomePage());
+    return MaterialApp(
+      home: MyHomePage(),
+      theme: ThemeData(
+        primarySwatch: Colors.purple,
+        fontFamily: "Archivo",
+      ),
+    );
   }
 }
 
@@ -24,21 +31,14 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final _transactions = [
-    Transactions(
-        id: "1", title: "Kit de Cueca", value: 21.90, date: DateTime.now()),
-    Transactions(
-        id: "2", title: "Duas Canecas", value: 29.19, date: DateTime.now()),
-    Transactions(
-        id: "3", title: "Kit Pratos", value: 89.90, date: DateTime.now()),
-  ];
+  final List<Transactions> _transactions = [];
 
-  _addTransaction(String title, double value) {
+  _addTransaction(String title, double value, DateTime data) {
     final newTransaction = Transactions(
         id: Random().nextDouble().toString(),
         title: title,
         value: value,
-        date: DateTime.now());
+        date: data);
 
     setState(() {
       _transactions.add(newTransaction);
@@ -55,13 +55,29 @@ class _MyHomePageState extends State<MyHomePage> {
         });
   }
 
+  _deleteTransaction(String id) {
+    setState(() {
+      _transactions.removeWhere((element) {
+        return element.id == id;
+      });
+    });
+  }
+
+  List<Transactions> get _recentsTransaction {
+    return _transactions.where((element) {
+      return element.date.isAfter(DateTime.now().subtract(Duration(
+        days: 7,
+      )));
+    }).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
           title: Text("Despesas pessoais"),
-          backgroundColor: Colors.deepPurple.shade600,
+          backgroundColor: Theme.of(context).primaryColorDark,
           actions: [
             IconButton(
               onPressed: () => _openTransactionFormModal(context),
@@ -73,16 +89,12 @@ class _MyHomePageState extends State<MyHomePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              Container(
-                height: double.tryParse("100"),
-                child: Card(
-                  child: Text("Gráfico"),
-                  elevation: 5,
-                  color: Colors.deepPurple.shade600,
-                ),
-              ),
+              SizedBox(
+                  child: Chart(
+                transactions: _recentsTransaction,
+              )),
               Column(children: [
-                TransactionList(_transactions),
+                TransactionList(_transactions, _deleteTransaction),
               ]),
             ],
           ),

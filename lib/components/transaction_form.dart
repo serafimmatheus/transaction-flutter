@@ -61,9 +61,10 @@
 // }
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class TransactionForm extends StatefulWidget {
-  final void Function(String, double) onSubmit;
+  final void Function(String, double, DateTime) onSubmit;
 
   const TransactionForm(this.onSubmit, {Key? key}) : super(key: key);
 
@@ -73,21 +74,35 @@ class TransactionForm extends StatefulWidget {
 
 class _TransactionFormState extends State<TransactionForm> {
   final titleController = TextEditingController();
-
   final valueController = TextEditingController();
+  DateTime? _selectedDate = DateTime.now();
 
   _submitForm() {
     final title = titleController.text;
     final value = double.tryParse(valueController.text) ?? 0;
 
-    print(title);
-    print(value);
-
     if (title.isEmpty || value <= 0) {
       return;
     }
 
-    widget.onSubmit(title, value);
+    widget.onSubmit(title, value, _selectedDate as DateTime);
+  }
+
+  _showDatePicker() {
+    showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2023),
+      lastDate: DateTime.now(),
+    ).then((pickedDate) {
+      if (pickedDate == null) {
+        return;
+      }
+
+      setState(() {
+        _selectedDate = pickedDate;
+      });
+    });
   }
 
   @override
@@ -115,16 +130,33 @@ class _TransactionFormState extends State<TransactionForm> {
               ),
             ),
             Row(
+              children: [
+                Expanded(
+                  child: Text(_selectedDate != null
+                      ? "Data selecionada: ${DateFormat("dd MMMM y").format((_selectedDate as DateTime))}"
+                      : "Nenhuma data selecionada"),
+                ),
+                TextButton(
+                  onPressed: _showDatePicker,
+                  child: Text("Selecionar data"),
+                )
+              ],
+            ),
+            Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
-                TextButton(
-                  child: const Text(
-                    'Nova Transação',
-                    style: TextStyle(
-                      color: Colors.purple,
+                Container(
+                  margin: EdgeInsets.symmetric(vertical: 15),
+                  color: Colors.purple,
+                  child: TextButton(
+                    child: const Text(
+                      'Nova Transação',
+                      style: TextStyle(
+                        color: Colors.white,
+                      ),
                     ),
+                    onPressed: _submitForm,
                   ),
-                  onPressed: _submitForm,
                 )
               ],
             ),
