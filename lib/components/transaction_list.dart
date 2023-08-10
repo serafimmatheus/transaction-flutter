@@ -11,7 +11,7 @@ class TransactionList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 600,
+      height: 500,
       child: transactions.isEmpty
           ? Center(
               child: Column(
@@ -20,9 +20,10 @@ class TransactionList extends StatelessWidget {
                   Text("Nenhuma transação cadastrada."),
                   SizedBox(height: 40),
                   Container(
-                      height: 200,
-                      child: Image.asset("assets/images/waiting.png",
-                          fit: BoxFit.cover)),
+                    height: 200,
+                    child: Image.asset("assets/images/waiting.png",
+                        fit: BoxFit.cover),
+                  ),
                 ],
               ),
             )
