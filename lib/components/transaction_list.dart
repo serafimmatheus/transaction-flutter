@@ -1,6 +1,6 @@
+import 'package:despesas_pessoais/components/Transaction_item.dart';
 import 'package:despesas_pessoais/models/transactions.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 class TransactionList extends StatelessWidget {
   final List<Transactions> transactions;
@@ -11,54 +11,30 @@ class TransactionList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return transactions.isEmpty
-        ? Center(
-            child: Column(
-              children: [
-                SizedBox(height: 10),
-                Text("Nenhuma transação cadastrada."),
-                SizedBox(height: 10),
-                Container(
-                  height: 200,
-                  child: Image.asset("assets/images/waiting.png",
-                      fit: BoxFit.cover),
+        ? LayoutBuilder(
+            builder: (ctx, constraints) {
+              return Center(
+                child: Column(
+                  children: [
+                    SizedBox(height: constraints.maxHeight * 0.05),
+                    Text("Nenhuma transação cadastrada."),
+                    SizedBox(height: constraints.maxHeight * 0.05),
+                    Container(
+                      height: constraints.maxHeight * 0.70,
+                      child: Image.asset("assets/images/waiting.png",
+                          fit: BoxFit.cover),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              );
+            },
           )
         : ListView.builder(
             itemCount: transactions.length,
             itemBuilder: (ctx, index) {
               final e = transactions[index];
-              return Card(
-                elevation: 5,
-                margin: EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 5,
-                ),
-                child: ListTile(
-                  leading: CircleAvatar(
-                    radius: 30,
-                    backgroundColor: Colors.purple[800],
-                    child: Padding(
-                      padding: const EdgeInsets.all(8),
-                      child: FittedBox(
-                        child: Text(
-                          "R\$ ${e.value}",
-                          style: TextStyle(
-                              color: Colors.white, fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ),
-                  ),
-                  title: Text(e.title),
-                  subtitle: Text(DateFormat("dd MMMM y").format(e.date)),
-                  trailing: IconButton(
-                    onPressed: () => deleteTransaction(e.id),
-                    icon: Icon(Icons.delete),
-                    color: Colors.red,
-                  ),
-                ),
-              );
+              return Transaction_item(
+                  e: e, deleteTransaction: deleteTransaction);
             },
           );
   }
